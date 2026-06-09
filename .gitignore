@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# Data (本地数据不入库)
+data/
+*.csv
+*.parquet
+*.feather
+*.db
+*.sqlite
+
+# Secrets / API keys
+.env
+*.key
+secrets.*
+credentials.*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
