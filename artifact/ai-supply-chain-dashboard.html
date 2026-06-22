@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 供应链卡点 · 全景仪表盘</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#141925; --panel2:#1b2230; --line:#283044;
+    --txt:#e6e9f0; --mut:#8b93a7; --acc:#5b9dff; --grn:#3ecf8e; --amb:#f5b850; --red:#ff6b6b;
+    --gold:#ffd66b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.6;padding:0 0 60px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+  header{padding:38px 0 18px;border-bottom:1px solid var(--line);margin-bottom:26px}
+  h1{font-size:26px;margin:0 0 8px;letter-spacing:.5px}
+  .sub{color:var(--mut);font-size:14px}
+  .badge{display:inline-block;background:var(--panel2);border:1px solid var(--line);
+    color:var(--mut);font-size:12px;padding:3px 10px;border-radius:20px;margin-right:6px;margin-top:8px}
+  h2{font-size:18px;margin:34px 0 14px;display:flex;align-items:center;gap:9px}
+  h2 .dot{width:9px;height:9px;border-radius:50%;background:var(--acc)}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid var(--line)}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+  th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  thead th{background:var(--panel2);color:var(--mut);font-weight:600;font-size:12px;
+    text-transform:uppercase;letter-spacing:.5px;position:sticky;top:0}
+  tbody tr:hover{background:#171d2a}
+  td.tkr{font-weight:700}
+  .g{color:var(--grn)} .a{color:var(--amb)} .r{color:var(--red)} .m{color:var(--mut)}
+  .pill{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600}
+  .pill.hot{background:rgba(255,107,107,.15);color:var(--red)}
+  .pill.warm{background:rgba(245,184,80,.15);color:var(--amb)}
+  .pill.cool{background:rgba(62,207,142,.15);color:var(--grn)}
+  .tier{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  .tier h3{margin:0 0 6px;font-size:15px;display:flex;align-items:center;gap:8px}
+  .rank{font-size:18px}
+  .tier p{margin:6px 0 0;font-size:13.5px;color:#cfd5e2}
+  .tier .why{color:var(--mut);font-size:12.5px}
+  .t1{border-left:3px solid var(--gold)}
+  .t2{border-left:3px solid var(--acc)}
+  .t3{border-left:3px solid var(--amb)}
+  .t4{border-left:3px solid var(--red)}
+  .alloc{display:flex;height:42px;border-radius:10px;overflow:hidden;border:1px solid var(--line);margin:6px 0 10px}
+  .alloc div{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#0b0e14}
+  .leg{font-size:12.5px;color:var(--mut);display:flex;flex-wrap:wrap;gap:14px}
+  .leg span{display:flex;align-items:center;gap:6px}
+  .sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .map{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;font-size:13px;overflow-x:auto}
+  .map code{color:#cfd5e2;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre;line-height:1.9;display:block}
+  .note{background:rgba(245,184,80,.08);border:1px solid rgba(245,184,80,.3);border-radius:10px;
+    padding:13px 15px;font-size:13px;margin-top:14px;color:#f0e3c8}
+  .disc{color:var(--mut);font-size:12px;margin-top:30px;border-top:1px solid var(--line);padding-top:16px}
+  .pick{background:linear-gradient(135deg,rgba(255,214,107,.12),rgba(91,157,255,.08));
+    border:1px solid rgba(255,214,107,.35);border-radius:12px;padding:16px 18px;margin:18px 0}
+  .pick b{color:var(--gold)}
+  .warn{background:rgba(255,107,107,.09);border:1px solid rgba(255,107,107,.4);border-radius:10px;
+    padding:14px 16px;font-size:13px;margin:14px 0;color:#ffd9d9}
+  .warn b{color:var(--red)}
+  .win{color:var(--grn);font-weight:700}
+  .vs td.h{color:var(--acc);font-weight:700}
+  .plan{counter-reset:step;list-style:none;padding:0;margin:6px 0}
+  .plan li{position:relative;padding:10px 14px 10px 44px;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;margin-bottom:8px;font-size:13.5px}
+  .plan li::before{counter-increment:step;content:counter(step);position:absolute;left:12px;top:11px;
+    width:22px;height:22px;border-radius:50%;background:var(--acc);color:#0b0e14;font-weight:700;
+    font-size:12px;display:flex;align-items:center;justify-content:center}
+  .sig{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:700}
+  .sig.acc{background:rgba(62,207,142,.15);color:var(--grn)}
+  .sig.neu{background:rgba(245,184,80,.15);color:var(--amb)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>⚙️ AI 供应链卡点 · 6 只核心标的对比</h1>
+  <div class="sub">v3 · 财报 + 机构资金流 + 内存对决 + 建仓计划 + 下一波龙头 · 数据截至 2026 年 6 月中旬 · 「长期持有 + 均衡风格」</div>
+  <div>
+    <span class="badge">芯片主轴</span>
+    <span class="badge">内存与封装</span>
+    <span class="badge">电力与冷却</span>
+    <span class="badge">非投资建议</span>
+  </div>
+</header>
+
+<h2><span class="dot"></span>供应链卡点地图</h2>
+<div class="map"><code>设计 → EDA/IP → <b style="color:#ff6b6b">晶圆代工(TSM)</b> → <b style="color:#ff6b6b">先进封装CoWoS(TSM)</b> → <b style="color:#ff6b6b">HBM内存(海力士/MU)</b> → <b style="color:#ff6b6b">设备(ASML)</b>
+                                                          ↓
+应用 ← 模型 ← 云/算力 ← 服务器 ← 网络互联 ← <b style="color:#ff6b6b">[电力&冷却(VRT)]★</b> ← GPU需求引擎 <b style="color:#5b9dff">(NVDA)</b></code>
+<div style="margin-top:10px;font-size:12px;color:#8b93a7">★ = 2026 年瓶颈从「缺芯片」转向「缺电、缺封装、缺 HBM」</div>
+</div>
+
+<h2><span class="dot"></span>最新季度经营对比（已公布实际数字）</h2>
+<div class="scroll">
+<table>
+<thead><tr><th>标的</th><th>卡点紧张度</th><th>最新季度营收</th><th>同比</th><th>毛利率</th><th>营业利润率</th></tr></thead>
+<tbody>
+<tr><td class="tkr">NVDA 英伟达</td><td><span class="pill hot">🔴 需求引擎</span></td><td>$81.6B</td><td class="g">+85%</td><td>75%</td><td>66%</td></tr>
+<tr><td class="tkr">TSM 台积电</td><td><span class="pill hot">🔴 制造垄断</span></td><td>$35.9B</td><td class="g">+40.6%</td><td>66%</td><td>58%</td></tr>
+<tr><td class="tkr">海力士 SK Hynix</td><td><span class="pill hot">🔴 HBM龙头</span></td><td>~$38B</td><td class="g">+198%</td><td class="m">—</td><td>72%</td></tr>
+<tr><td class="tkr">MU 美光</td><td><span class="pill hot">🔴 HBM#3</span></td><td>$23.9B</td><td class="g">+196%</td><td>74%</td><td>~68%</td></tr>
+<tr><td class="tkr">ASML 阿斯麦</td><td><span class="pill hot">🔴 EUV独占</span></td><td>~$9.5B</td><td class="a">+13%</td><td>53%</td><td>~33%</td></tr>
+<tr><td class="tkr">VRT 维谛</td><td><span class="pill warm">🟠 电力冷却</span></td><td>$2.65B</td><td class="g">+30%</td><td>38%</td><td>21%</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2><span class="dot"></span>估值对比（6 月中旬）</h2>
+<div class="scroll">
+<table>
+<thead><tr><th>标的</th><th>股价</th><th>市值</th><th>滚动 PE</th><th>前瞻 PE</th><th>解读</th></tr></thead>
+<tbody>
+<tr><td class="tkr">TSM 台积电</td><td>~$445</td><td>$2.4T</td><td>~37</td><td class="g">~27</td><td class="g">巨头里性价比最高</td></tr>
+<tr><td class="tkr">NVDA 英伟达</td><td>~$205</td><td>$4.3T</td><td>31</td><td class="g">~23.5</td><td class="g">估值已压缩，相对便宜</td></tr>
+<tr><td class="tkr">ASML 阿斯麦</td><td>~$1,800</td><td>$740B</td><td>~57</td><td class="a">~45</td><td class="a">最贵、增速最慢</td></tr>
+<tr><td class="tkr">海力士</td><td>₩2.69M</td><td>~$1.38T</td><td>~20</td><td class="r">~6</td><td class="r">PE极低=周期顶 ⚠️</td></tr>
+<tr><td class="tkr">MU 美光</td><td>~$1,142</td><td>$1.29T</td><td>48</td><td class="r">~10</td><td class="r">同上，周期顶利润 ⚠️</td></tr>
+<tr><td class="tkr">VRT 维谛</td><td>~$290</td><td>$111B</td><td class="r">~73</td><td class="a">~44</td><td class="a">最贵、弹性最大</td></tr>
+</tbody>
+</table>
+</div>
+<div class="note">⚠️ <b>陷阱提醒</b>：海力士/美光「前瞻 PE 只有 6~10、看着超便宜」是周期信号——它反映的是<b>周期顶部的暴利</b>（毛利 70%+、营业利润率 72% 是历史峰值）。一旦 2027 年三星/美光新产能放出、HBM 供需逆转，利润快速回落，PE 会「被动变贵」。这是内存股的经典规律。</div>
+
+<h2><span class="dot"></span>排序建议（均衡 + 长期持有）</h2>
+
+<div class="tier t1">
+  <h3><span class="rank">🥇</span> 第一档 · 压舱石（确定性最高，穿越周期）</h3>
+  <p><b>1. TSM 台积电</b> — 单一首选。制造垄断、毛利创历史新高、全年增速 30%+，前瞻 PE 仅 27。所有 AI 芯片最终都经过它，等于「一篮子下注」。</p>
+  <p><b>2. NVDA 英伟达</b> — 全链需求引擎，前瞻 PE 23.5 对应 85% 增速并不贵。<span class="why">注意：已 $4.3 万亿基数巨大 + 中国出口限制。核心持仓，别追高。</span></p>
+</div>
+
+<div class="tier t2">
+  <h3><span class="rank">🥈</span> 第二档 · 最深护城河（偏贵、增速慢）</h3>
+  <p><b>3. ASML 阿斯麦</b> — EUV 绝对垄断，适合长期「锁仓不动」。<span class="why">缺点：前瞻 PE 45 偏贵、季度增速仅 13%、今年起不再披露订单数据。小仓位长持。</span></p>
+</div>
+
+<div class="tier t3">
+  <h3><span class="rank">🥉</span> 第三档 · 高弹性但周期性强（控制仓位）</h3>
+  <p><b>4. 海力士（优先）/ MU 美光</b> — HBM 龙头优先选海力士：份额全球第一（~50-55%）、英伟达 90% HBM 来自它、估值还比美光便宜。<span class="why">利好：预计 2026 年 7-8 月在纳斯达克上 ADR。⚠️ 周期顶部，仓位要小，做好高波动准备。</span></p>
+</div>
+
+<div class="tier t4">
+  <h3><span class="rank">4️⃣</span> 第四档 · 最新主题（弹性最大、也最贵）</h3>
+  <p><b>5. VRT 维谛</b> — 电力&液冷瓶颈最纯正标的，在手订单 +81%、能见度到 2027。<span class="why">73 倍滚动 PE + 客户集中少数云厂 + 关税。小仓位作主题弹性。</span></p>
+</div>
+
+<h2><span class="dot"></span>示意性均衡组合（仅供参考）</h2>
+<div class="alloc">
+  <div style="width:30%;background:#ffd66b">TSM 30%</div>
+  <div style="width:25%;background:#5b9dff">NVDA 25%</div>
+  <div style="width:15%;background:#7c9fff;color:#fff">ASML 15%</div>
+  <div style="width:12%;background:#f5b850">海力士 12%</div>
+  <div style="width:6%;background:#f5cf85;font-size:10px">MU 6%</div>
+  <div style="width:12%;background:#ff8c8c;color:#fff">VRT 12%</div>
+</div>
+<div class="leg">
+  <span><i class="sw" style="background:#ffd66b"></i>压舱石主轴 70%（TSM+NVDA+ASML）</span>
+  <span><i class="sw" style="background:#f5b850"></i>高弹性内存 18%</span>
+  <span><i class="sw" style="background:#ff8c8c"></i>主题弹性 12%</span>
+</div>
+
+<div class="pick">
+  🎯 <b>如果只买一只</b> → <b>TSM</b>（最均衡）<br>
+  🎯 <b>如果只买三只</b> → <b>TSM + NVDA + ASML</b>（覆盖芯片主轴全部卡点）
+</div>
+
+<h2><span class="dot"></span>机构资金流（13F · 2026 Q1，5 月中旬披露）</h2>
+<div class="scroll">
+<table>
+<thead><tr><th>标的</th><th>机构持股%</th><th>Q1环比净股数</th><th>大资金动向</th><th>信号</th></tr></thead>
+<tbody>
+<tr><td class="tkr">MU 美光</td><td>~81-84%</td><td class="g">+4.95%</td><td>~2440家新建仓；文艺复兴/挪威央行/Citadel/先锋加仓</td><td><span class="sig acc">最强净加仓</span></td></tr>
+<tr><td class="tkr">VRT 维谛</td><td>~81-83%</td><td class="g">+13.3%</td><td>对冲基金 90→104；贝莱德+16%、UBS+69%</td><td><span class="sig acc">净加仓</span></td></tr>
+<tr><td class="tkr">TSM 台积电</td><td>~14-16%*</td><td class="m">权重小幅减</td><td>+79家；桥水新建仓、资本世界+20%</td><td><span class="sig neu">中性偏建设性</span></td></tr>
+<tr><td class="tkr">ASML</td><td>~15-26%*</td><td class="m">~+1.4%</td><td>富达翻倍 vs 资本国际-48%（分歧大）</td><td><span class="sig neu">中性偏小幅加</span></td></tr>
+<tr><td class="tkr">NVDA 英伟达</td><td>~65-77%</td><td class="m">+10%(被动)</td><td>先锋/贝莱德被动加；减仓家数更多</td><td><span class="sig neu">中性偏多</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="note">🔑 <b>关键反差</b>：机构主动加仓最猛的，恰是组合里风险最高的两只（MU/VRT）；最稳的主轴三只反而中性、被动驱动。这是<b>双刃剑</b>——资金面确认了"HBM紧缺+电力瓶颈"主题（基本面对上资金面），但也意味着<b>仓位拥挤</b>，AI 资本开支一旦降温，这两只回撤会更急。结论：强化"主轴做底仓、MU/VRT 小仓博弹性"的打法。<br><span class="m" style="font-size:12px">*TSM/ASML 的 13F 仅覆盖美股 ADR/美国上市部分（绝大多数股票在台股/欧股，不在范围内），故持股%偏低属正常。13F 有 45 天滞后，为确认性指标。</span></div>
+
+<h2><span class="dot"></span>内存二选一 · 海力士 vs 美光</h2>
+<div class="scroll">
+<table class="vs">
+<thead><tr><th>维度</th><th>海力士 SK Hynix</th><th>美光 MU</th><th>赢家</th></tr></thead>
+<tbody>
+<tr><td class="h">HBM 份额(2026)</td><td>~50%（全球第一）</td><td>~17-21%（#3）</td><td class="win">海力士</td></tr>
+<tr><td class="h">供英伟达 HBM</td><td>~60-70%（主力）</td><td>~5-10%</td><td class="win">海力士</td></tr>
+<tr><td class="h">HBM4(Rubin)</td><td>~66-70% 英伟达订单，首发16层</td><td>~高teens</td><td class="win">海力士</td></tr>
+<tr><td class="h">营业利润率</td><td>~72%</td><td>~60-68%</td><td class="win">海力士</td></tr>
+<tr><td class="h">前瞻 PE</td><td>~5.9倍</td><td>~10倍</td><td class="win">海力士</td></tr>
+<tr><td class="h">市净率 P/B</td><td>~3倍</td><td>~17倍</td><td class="win">海力士</td></tr>
+<tr><td class="h">客户分散度</td><td>NVIDIA占~27%（集中）</td><td>最大~17%（分散）</td><td class="a">美光</td></tr>
+<tr><td class="h">买入便利</td><td>韩股直接买/ADR 7月上</td><td>纳斯达克随时</td><td class="a">美光</td></tr>
+</tbody>
+</table>
+</div>
+<div class="note">🎯 <b>结论：倾向海力士</b>——更好的生意（HBM龙头+HBM4决定性领先+净现金）+ 更便宜的资产（前瞻PE仅美光一半，P/B 3倍 vs 17倍，对周期股是真正的安全垫）。美光相对优势本是"买着方便"，但<b>你能直接买韩股，这个优势对你不成立</b>。<br><b>反选美光</b>：若你不碰韩股想现在就在美股账户买（可等7月ADR）、或特别担心三星HBM4追赶（压力主要打在海力士的技术溢价上）。</div>
+
+<div class="warn">🚫 <b>港股 7709（CSOP 海力士每日2x杠杆，1.6%费率）——长期持有不要碰。</b> 它是<b>每日重置</b>杠杆，官方明示"不宜持有超过1天"。原因：① <b>波动损耗</b>——海力士+10%再-9.1%（回原点），2倍产品两天净亏约1.8%，高波动股长期被持续磨损；② 2倍放大的恰是你最该规避的"周期顶+高波动"风险，反转时腰斩还不止。要海力士敞口请买<b>韩股原股 000660</b> 或等纳斯达克 ADR；杠杆产品只适合几天的短线投机。</div>
+
+<h2><span class="dot"></span>海力士分批建仓计划</h2>
+<p style="font-size:13px;color:#cfd5e2;margin:0 0 10px">核心：用「分批 + 小仓位 + 纪律」代替择时。价格以实时报价为准，下方用相对幅度。</p>
+<ol class="plan">
+<li><b>目标仓位 ~12%</b>（高弹性档主力，美光可选0-6%）。即使腰斩，对总组合冲击约-6%，均衡风格可承受。</li>
+<li><b>现在</b>先买目标仓位的 <b>40%</b>（上车，不等了）。</li>
+<li>回调 <b>8-10%</b> 加 <b>30%</b>；再到 <b>-18~-20%</b> 或突破前高站稳加 <b>20%</b>；留 <b>10%</b> 机动给极端波动/财报确认。</li>
+<li><b>强制复核信号</b>（任一出现即重评减仓）：DRAM合约价连续2月回落 · 三星HBM4抢走重大份额 · 库存天数回升/长约被压价 · 2027供需逆转被订单验证。</li>
+<li><b>止盈</b>：若涨到占组合 >18%，主动减仓再平衡。它是弹性仓，不是底仓——底仓稳健靠 TSM/NVDA/ASML。</li>
+</ol>
+
+<h2><span class="dot"></span>下一波龙头 · 钱往哪轮动</h2>
+<p style="font-size:13px;color:#cfd5e2;margin:0 0 10px">大背景：领导权<b>已经轮出英伟达</b>——NVDA 今年仅 +11%，费城半导体指数 +88%。资本沿产业链向「瓶颈层」扩散。</p>
+<div class="scroll">
+<table>
+<thead><tr><th>主题</th><th>代表涨幅(2026)</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td class="tkr">光互联/光模块</td><td class="g">AAOI +357%、LITE +121%、COHR +90%</td><td><span class="sig acc">涨幅冠军</span></td></tr>
+<tr><td class="tkr">存储/内存</td><td class="g">SNDK +288%、WDC +116%、海力士/MU</td><td><span class="sig acc">领跑</span></td></tr>
+<tr><td class="tkr">定制芯片/推理</td><td class="g">AMD +133%、AVGO AI收入+143%</td><td><span class="sig acc">强</span></td></tr>
+<tr><td class="tkr">电力/核电</td><td class="a">GEV +243%、铀 +40%；CEG −36%、OKLO −70%+</td><td><span class="sig neu">严重分化</span></td></tr>
+<tr><td class="tkr">AI软件/Agent</td><td class="m">5月底-6月刚开始补涨</td><td><span class="sig neu">刚启动</span></td></tr>
+<tr><td class="tkr">物理AI/机器人</td><td class="m">机器人ETF +31%</td><td><span class="sig neu">前沿(2027+)</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tier t1" style="margin-top:14px">
+  <h3><span class="rank">1️⃣</span> 最强共识 · 定制ASIC + 推理 =「去英伟达化」</h3>
+  <p><b>博通 AVGO + AMD</b> — 云厂自研芯片(博通代工)，AI收入+143%、在手订单 $30B、6个XPU客户，<b>真实订单不是故事</b>。推理已占算力~67%，高盛喊「推理场景 AMD 优于 NVDA」。</p>
+  <p class="why">德鲁肯米勒最新持仓：AVGO/ARM/MU + 电力，完全不持 NVDA —— 聪明钱对下一棒的投票。</p>
+</div>
+<div class="tier t2">
+  <h3><span class="rank">2️⃣</span> 最长 runway 远期主线 · 电力/核电</h3>
+  <p>「电子瓶颈」最深最持久(电站要数年建)。摩根士丹利喊「$5.5万亿超级周期」。<b>但内部严重分化</b>：</p>
+  <p>✅ 稳的接棒：发电设备 <b>GEV</b>、铀 <b>CCJ</b>　｜　⚠️ 已大幅回调的投机：<b>CEG -36%、OKLO/NuScale -70%+</b>（电站还没一座投运）</p>
+</div>
+<div class="tier t3">
+  <h3><span class="rank">3️⃣</span> 涨幅冠军但已晚半步 · 光互联/CPO</h3>
+  <p>光模块今年涨幅王(AAOI +357%) → 追第一波已晚。但 <b>CPO 共封装光学</b> 的真正放量在 2027-28，是第二波。英伟达已投 $40亿进 COHR/LITE。</p>
+</div>
+<div class="tier t2">
+  <h3><span class="rank">4️⃣</span> 最早期、想象最大 · AI软件/Agent变现层</h3>
+  <p>终极轮动：从「卖铲子」转到「靠软件把钱赚回来」。Palantir 收入+85%、Salesforce Agentforce ARR 破 $10亿、ServiceNow 目标 $15亿 AI收入 —— <b>变现开始进财报</b>。但只轮动了几周，很早。</p>
+</div>
+<div class="tier t4">
+  <h3><span class="rank">5️⃣</span> 2027+ 当期权 · 物理AI/机器人</h3>
+  <p>英伟达物理AI收入 $60亿、Figure 拿宝马订单。但特斯拉 Optimus 一再跳票，真市场在 2030年代。<b>小仓位当长期期权，别当主线。</b></p>
+</div>
+
+<div class="pick">
+  📌 <b>给你(长期+均衡)最该补的一块</b> → <b>博通 AVGO</b>（补上主轴缺的定制ASIC敞口，产业支撑最硬、聪明钱在押、未透支）<br>
+  ➕ 电力补 <b>GEV</b>（发电）配你已有的 VRT（冷却）；软件层 <b>PLTR</b> 小仓提前布局。<b>别碰 OKLO/NuScale</b> 这类未投运 SMR。
+</div>
+
+<div class="warn">⚠️ <b>三个清醒点</b>：① <b>"下一波"很多已涨完一大截</b>(光模块+357%、AMD+133%)——你看到的是后视镜，追 momentum 最危险；上面优先推的 AVGO/GEV 是「涨了但有真实订单、未透支」的，不是纯涨幅榜。② <b>泡沫警告累积</b>(摩根大通下调Meta、高盛警告"是FOMO不是ROI")，但资本开支仍在上修——"贵但还没破"。③ <b>预测必然会错</b>，这是基于当下资金流+产业逻辑的概率判断，别 All in 任何单一"下一棒"。</div>
+
+<div class="disc">
+  <b>数据来源</b>：各公司 2026 年最新季报/官网 IR、SEC 备案、CNBC/TrendForce 等公开来源，由联网核实。价格与估值为 6 月中旬数据，会随市场变动。<br>
+  <b>免责声明</b>：本页为公开信息整理与个人分析，<b>不构成投资建议</b>。任何买卖决策请结合你自己的研究、估值判断与风险承受能力，并自行承担后果。
+</div>
+</div>
+</body>
+</html>

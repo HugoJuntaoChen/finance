@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 算力产业链 · 上下游卡点图</title>
+<style>
+  :root{
+    --bg:#0a0d13; --card:#141a26; --card2:#1a2230; --line:#2a3344;
+    --txt:#e8ebf2; --mut:#8c95a8; --acc:#5b9dff;
+    --red:#ff6b6b; --amb:#f5b850; --grn:#3ecf8e; --gold:#ffd66b;
+    --up:#5b9dff; --mid:#b07cff; --down:#3ecf8e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.6;padding:0 0 60px}
+  .wrap{max-width:920px;margin:0 auto;padding:0 16px}
+  header{padding:34px 0 16px;border-bottom:1px solid var(--line);margin-bottom:8px;text-align:center}
+  h1{font-size:25px;margin:0 0 6px;letter-spacing:.5px}
+  .sub{color:var(--mut);font-size:13px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:16px 0 4px;font-size:12.5px;color:var(--mut)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .grp{margin-top:22px}
+  .grp-h{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;margin:0 0 10px;padding-left:4px}
+  .grp-h .bar{width:5px;height:20px;border-radius:3px}
+  .flow{font-size:11px;color:var(--mut);font-weight:400;margin-left:auto}
+  /* stage card */
+  .stage{position:relative;background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:13px 15px;margin-bottom:8px;display:flex;gap:14px;align-items:flex-start}
+  .stage .lhs{flex:0 0 165px;min-width:0}
+  .stage .name{font-weight:700;font-size:14px;margin-bottom:3px}
+  .stage .desc{font-size:12px;color:var(--mut);line-height:1.45}
+  .stage .rhs{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start}
+  .chip{font-size:12px;padding:3px 9px;border-radius:7px;background:var(--card2);border:1px solid var(--line);
+    white-space:nowrap}
+  .chip b{color:var(--gold);font-weight:700}
+  .chip.key{border-color:rgba(255,107,107,.5);background:rgba(255,107,107,.08)}
+  .sev{position:absolute;top:-8px;left:14px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .sev.r{background:#3a1f23;color:var(--red);border:1px solid rgba(255,107,107,.5)}
+  .sev.a{background:#3a3320;color:var(--amb);border:1px solid rgba(245,184,80,.5)}
+  .sev.y{background:#1f3a2c;color:var(--grn);border:1px solid rgba(62,207,142,.5)}
+  .sev.n{background:#222a38;color:var(--mut);border:1px solid var(--line)}
+  .arrow{text-align:center;color:var(--line);font-size:15px;line-height:1;margin:1px 0 5px}
+  /* group accent */
+  .g-up .stage{border-left:3px solid var(--up)}
+  .g-mid .stage{border-left:3px solid var(--mid)}
+  .g-down .stage{border-left:3px solid var(--down)}
+  .note{background:rgba(91,157,255,.07);border:1px solid rgba(91,157,255,.25);border-radius:11px;
+    padding:13px 15px;font-size:12.5px;margin-top:22px;color:#cdd9ef}
+  .note b{color:var(--acc)}
+  .disc{color:var(--mut);font-size:11.5px;margin-top:18px;border-top:1px solid var(--line);padding-top:14px;text-align:center}
+  @media(max-width:560px){
+    .stage{flex-direction:column;gap:8px}
+    .stage .lhs{flex:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>⚙️ AI 算力产业链 · 上下游卡点图</h1>
+  <div class="sub">从光刻机到应用，标注各环节卡点紧张度与卡位公司 · 数据截至 2026 年 6 月</div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--red)"></i>🔴 极紧（垄断/瓶颈）</span>
+    <span><i class="dot" style="background:var(--amb)"></i>🟠 偏紧</span>
+    <span><i class="dot" style="background:var(--grn)"></i>🟡 缓和</span>
+    <span><i class="dot" style="background:var(--gold)"></i>金色 = 龙头卡点</span>
+  </div>
+</header>
+
+<!-- 上游 -->
+<div class="grp g-up">
+  <div class="grp-h"><span class="bar" style="background:var(--up)"></span>上游 · 芯片设计与制造<span class="flow">护城河最深的一段</span></div>
+
+  <div class="stage"><span class="sev a">🟠 偏紧</span>
+    <div class="lhs"><div class="name">芯片设计 / GPU</div><div class="desc">AI 加速器与处理器设计</div></div>
+    <div class="rhs"><span class="chip key"><b>NVDA</b> 英伟达·GPU霸主</span><span class="chip">AMD</span><span class="chip">AVGO 博通·定制ASIC</span><span class="chip">MRVL</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev a">🟠 偏紧</span>
+    <div class="lhs"><div class="name">EDA / IP 核</div><div class="desc">芯片设计软件与架构授权</div></div>
+    <div class="rhs"><span class="chip">SNPS 新思</span><span class="chip">CDNS 铿腾</span><span class="chip">ARM 安谋</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev r">🔴 极紧</span>
+    <div class="lhs"><div class="name">晶圆代工</div><div class="desc">先进制程几乎垄断（3nm/2nm）</div></div>
+    <div class="rhs"><span class="chip key"><b>TSM</b> 台积电·制造垄断</span><span class="chip">三星</span><span class="chip">Intel 代工</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev r">🔴 极紧</span>
+    <div class="lhs"><div class="name">先进封装 CoWoS</div><div class="desc">GPU 出货的硬上限</div></div>
+    <div class="rhs"><span class="chip key"><b>TSM</b> 台积电·主力</span><span class="chip">Amkor</span><span class="chip">日月光 / ASE</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev r">🔴 极紧</span>
+    <div class="lhs"><div class="name">HBM 高带宽内存</div><div class="desc">2026 已售罄，量价齐升</div></div>
+    <div class="rhs"><span class="chip key"><b>海力士</b> SK Hynix·全球第一</span><span class="chip key"><b>MU</b> 美光</span><span class="chip">三星</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev r">🔴 极紧</span>
+    <div class="lhs"><div class="name">半导体设备 / 材料</div><div class="desc">EUV 光刻机绝对垄断</div></div>
+    <div class="rhs"><span class="chip key"><b>ASML</b> 阿斯麦·EUV独占</span><span class="chip">AMAT 应用材料</span><span class="chip">LRCX 泛林</span><span class="chip">KLAC 科磊</span><span class="chip">东京电子</span><span class="chip">信越/JSR 材料</span></div>
+  </div>
+</div>
+
+<!-- 中游 -->
+<div class="grp g-mid">
+  <div class="grp-h"><span class="bar" style="background:var(--mid)"></span>中游 · 互联与组装<span class="flow">把芯片连起来、塞进机柜</span></div>
+
+  <div class="stage"><span class="sev a">🟠 偏紧</span>
+    <div class="lhs"><div class="name">网络互联 / 交换芯片</div><div class="desc">集群规模化的瓶颈</div></div>
+    <div class="rhs"><span class="chip">AVGO 博通</span><span class="chip">NVDA·NVLink/InfiniBand</span><span class="chip">MRVL</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev a">🟠 偏紧</span>
+    <div class="lhs"><div class="name">光模块 / 光互联 / CPO</div><div class="desc">下一代放量点（2027-28）</div></div>
+    <div class="rhs"><span class="chip">中际旭创(A股)</span><span class="chip">新易盛(A股)</span><span class="chip">COHR 高意</span><span class="chip">LITE 朗美通</span><span class="chip">ALAB</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev y">🟡 缓和</span>
+    <div class="lhs"><div class="name">服务器 / 系统组装(ODM)</div><div class="desc">组装不卡，卡在上游元件</div></div>
+    <div class="rhs"><span class="chip">SMCI 超微</span><span class="chip">鸿海 Foxconn</span><span class="chip">Quanta</span><span class="chip">DELL</span><span class="chip">HPE</span></div>
+  </div>
+</div>
+
+<!-- 下游 -->
+<div class="grp g-down">
+  <div class="grp-h"><span class="bar" style="background:var(--down)"></span>下游 · 电力、算力与应用<span class="flow">2026 瓶颈转移到「电」</span></div>
+
+  <div class="stage"><span class="sev r">🔴 极紧</span>
+    <div class="lhs"><div class="name">电力设备 / 发电 / 冷却</div><div class="desc">2026 最新物理瓶颈</div></div>
+    <div class="rhs"><span class="chip key"><b>VRT</b> 维谛·电源液冷</span><span class="chip key"><b>GEV</b> GE Vernova·发电设备</span><span class="chip">ETN 伊顿</span><span class="chip">PWR</span><span class="chip">CEG 核电运营</span><span class="chip">CCJ 铀</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev n">需求方</span>
+    <div class="lhs"><div class="name">云 / 算力运营</div><div class="desc">出钱建设的超大厂（吸单方）</div></div>
+    <div class="rhs"><span class="chip">微软 Azure</span><span class="chip">AWS</span><span class="chip">谷歌云</span><span class="chip">ORCL 甲骨文</span><span class="chip">CRWV CoreWeave</span><span class="chip">Meta</span></div>
+  </div>
+  <div class="arrow">↓</div>
+
+  <div class="stage"><span class="sev n">应用层</span>
+    <div class="lhs"><div class="name">模型 / 软件 / Agent</div><div class="desc">变现层（下一波轮动）</div></div>
+    <div class="rhs"><span class="chip">OpenAI</span><span class="chip">Anthropic</span><span class="chip">谷歌 DeepMind</span><span class="chip">PLTR 软件变现</span><span class="chip">CRM / NOW</span></div>
+  </div>
+</div>
+
+<div class="note">
+  <b>怎么读这张图</b>：从上到下是「钱的流向」——云厂(下游)出钱 → 买服务器/电力(下游/中游) → 芯片(上游) → 设备(最上游)。<b>红色 🔴 是真正卡脖子的环节</b>：ASML(光刻)、台积电(制造+封装)、HBM(海力士/美光)、电力(VRT/GEV)。越往上游护城河越深、确定性越高；越往下游(电力)是 2026 新出现的物理瓶颈。
+</div>
+
+<div class="disc">
+  仅为产业链结构与公司定位分析，<b>不构成投资建议</b>。卡点紧张度为截至 2026 年 6 月的判断，会随产能/订单变化。
+</div>
+</div>
+</body>
+</html>
