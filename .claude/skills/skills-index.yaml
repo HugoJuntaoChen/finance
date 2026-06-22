@@ -780,6 +780,23 @@ skills:
   outputs:
   - rotation_assessment_report
   workflows: []
+- id: serenity-perspective
+  display_name: Serenity Perspective
+  category: strategy-research
+  status: production
+  summary: Serenity (@stockgodserenity) stock-investing mental framework distilled from tweet data; upstream supply-chain chokepoint analysis, institutional-flow view, and long-term value/re-rating framing.
+  timeframe: research
+  difficulty: intermediate
+  integrations:
+  - id: local_calculation
+    type: calculation
+    requirement: not_required
+    note: Mental framework + optional dataset analysis script
+  inputs:
+  - ticker_or_theme
+  outputs:
+  - investment_perspective_report
+  workflows: []
 - id: signal-postmortem
   display_name: Signal Postmortem
   category: trade-memory
