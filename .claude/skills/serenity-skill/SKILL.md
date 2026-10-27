@@ -1,11 +1,11 @@
 ---
 name: serenity-skill
-description: Turn an investment agent into a supply-chain bottleneck hunter. Use this skill for source-backed investment research, live market/theme scans, AI/semi/technology value-chain mapping, A-share/HK/US stock screening, thesis stress tests, and Serenity-inspired research conversations. Trigger on requests like "用 Serenity 的方式看", "深度调研", "产业链/供应链/卡点/瓶颈", "A股 AI 半导体哪个最值得研究", "find unknown bottlenecks", "rank candidates", or "challenge this thesis". Outputs plain-language reasoning, ranked research priorities, evidence chains, risks, and next verification steps. Research support only; no trade execution.
+description: Turn an investment agent into a supply-chain bottleneck hunter. Use this skill for source-backed investment research, live market/theme scans, AI/semi/technology value-chain mapping, A-share/HK/US stock screening, thesis stress tests, and Serenity-inspired research conversations. Trigger on requests like "用 Serenity 的方式看", "深度调研", "产业链/供应链/卡点/瓶颈", "A股 AI 半导体哪个最值得研究", "find unknown bottlenecks", "rank candidates", "challenge this thesis", or "看一下白毛女/Serenity 最近说了什么" (read Serenity's latest X posts via the bundled archive script). Outputs plain-language reasoning, ranked research priorities, evidence chains, risks, and next verification steps. Research support only; no trade execution.
 license: MIT
 compatibility: Agent Skills-compatible clients. Best with web/search, market-data, filing, browser, and optional python3 access. Bundled scripts are local-only.
 metadata:
   author: muxu-compatible community build
-  version: "1.0.0"
+  version: "1.2.0"
   short-description: Supply-chain bottleneck hunter for investment agents
 ---
 
@@ -214,6 +214,26 @@ Use concise language when needed:
 
 Read `references/risk-and-compliance.md` for high-risk situations.
 
+## Reading Serenity's own posts
+
+Users may ask for Serenity's latest views directly: "看一下白毛女", "白毛女神最近说了什么", "Serenity 最新发帖", "what did aleabitoreddit post". 「白毛女 / 白毛女神 / 白毛女股神」 is the Chinese-media nickname for @aleabitoreddit (white-haired anime avatar; the operator is male). Chinese financial press attributes A-share moves to his calls, so these requests mean: pull his recent posts, then run them through the normal evidence workflow.
+
+Lead with the bundled script. It now reads the JSON feed behind the Chinese tracker aichainmap.com/serenity (`serenity-webhook.pages.dev/feed`): last ~200 posts, full long-form text, Chinese translation, metrics, quoted/reply context, minutes of lag. It falls back to the GitHub archive automatically. Live scraping of x.com is blocked for anonymous clients and every public mirror has been failing since 2026-08-25.
+
+```
+python3 scripts/fetch_serenity_posts.py --days 3 --all          # feed first, archive fallback; Beijing time
+python3 scripts/fetch_serenity_posts.py --days 3 --all --cn     # add the tracker's Chinese translation
+python3 scripts/fetch_serenity_posts.py --days 14 --source archive --refresh   # history beyond the feed's ~2 weeks
+```
+
+- Feed source: full text, `--cn` translation, lag usually under an hour. Archive source (`yan-labs/serenity-aleabitoreddit`, cloned into `$TMPDIR/serenity-archive`): truncates long posts at ~300 chars and has lagged 8-70 hours; use it only for history.
+- Always report the `# source: ... newest ... (lag Nh)` header line to the user so they know which source and cutoff.
+- Trust the max `createdAt` in the JSON, not `data/sync_state.json`, which understates freshness.
+- `scripts/fetch_x_status.py <id> [...]` reads single posts by status id through the public syndication endpoint (works when mirrors are walled; long posts truncated at ~280 chars). Use it to pull the ids listed in the archive's `data/sync_state.json` `last_tweet_id` that the JSON has not stored yet.
+- `scripts/fetch_live_x.sh <handle> [status_id]` is a live-route probe (r.jina.ai -> syndication API -> xcancel). Use it only when the user needs the last few hours or one specific post, and expect it to fail; re-probe occasionally rather than every turn. If xcancel does answer, its timestamps are relative to its own capture time, not now.
+
+Treat his posts as lead generation, never as proof. For every call he makes that the user cares about, run the single-company challenge mode: chain position, hard evidence, what the market already prices, and what would make the call wrong. Do not repeat his price targets as your own view.
+
 ## Bundled resources
 
 Load only what is needed:
@@ -230,6 +250,9 @@ Load only what is needed:
 - `assets/bottleneck-scorecard.json` — JSON input template for the scorecard.
 - `assets/research-prompt-pack.md` — prompts for users who want explicit task starters.
 - `scripts/serenity_scorecard.py` — local scoring script.
+- `scripts/fetch_serenity_posts.py` — read @aleabitoreddit's recent posts: tracker JSON feed first (full text, CN translation), GitHub archive fallback (Beijing time, metrics, permalinks).
+- `scripts/fetch_live_x.sh` — live X timeline/post probe with fallbacks; usually blocked, use for the last few hours only.
+- `scripts/fetch_x_status.py` — single-post fetch by status id via cdn.syndication.twimg.com (no login; long posts truncated).
 - `scripts/validate_skill.py` — local Agent Skill structure validator.
 - `examples/a-share-ai-semiconductor-demo.md` — A-share AI semiconductor example shape.
 - `examples/ai-infrastructure-chokepoint-demo.md` — end-to-end example.

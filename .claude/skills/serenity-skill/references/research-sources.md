@@ -23,6 +23,9 @@ Snapshot date: 2026-05-03
 - Singularity Research Fund: https://singularityresearchfund.substack.com/p/inside-the-mind-of-serenity-aleabitoreddit
 - Jimmy狐狸 Substack: https://jimmyhuli.substack.com/p/serenity-x-21
 - TwStalker mirror for public X posts: https://ww.twstalker.com/aleabitoreddit
+- GitHub archive of the full @aleabitoreddit timeline (posts + replies + metrics, ~8h lag; used by `scripts/fetch_serenity_posts.py`): https://github.com/yan-labs/serenity-aleabitoreddit
+- Chinese real-time tracker 白毛速报: https://aichainmap.com/serenity/ ; its JSON feed (used by `scripts/fetch_serenity_posts.py`): https://serenity-webhook.pages.dev/feed
+- Live-route status (checked 2026-09-02): x.com anonymous 402; r.jina.ai 401; xcancel / nitter mirrors stub or anti-bot; syndication API stale. Prefer the archive.
 
 ## Public market-impact / outside evaluation sources
 
